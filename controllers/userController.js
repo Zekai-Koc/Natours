@@ -1,7 +1,8 @@
 const User = require('../models/userModel');
-const APIFeatures = require('../utils/apiFeatures');
+// const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handleFactory');
 
 exports.checkId = (req, res, next, val) => {
   // const { id } = req.params;
@@ -28,17 +29,10 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
 
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1. Create error if user post password data.
@@ -76,67 +70,14 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getUser = (req, res) => {
-  // const { id } = req.params;
-  // const user = users.find((el) => el._id === id);
-  // // if (!user) {
-  // //   return res.status(404).json({
-  // //     status: 'fail',
-  // //     message: 'Invalid User ID',
-  // //   });
-  // // }
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: { user },
-  // });
-};
-
 exports.createUser = (req, res) => {
-  // const newId = users.length + 1;
-  // const newUser = Object.assign({ id: newId }, req.body);
-  // users.push(newUser);
-  // fs.writeFile(
-  //   `${__dirname}/../dev-data/data/users.json`,
-  //   JSON.stringify(users),
-  //   (err) => {
-  //     res.status(201).json({
-  //       status: 'success',
-  //       data: { user: newUser },
-  //     });
-  //   },
-  // );
-};
-
-exports.updateUser = (req, res) => {
-  // const id = req.params.id;
-  // const user = users.find((el) => el._id === id);
-  // if (!user) {
-  //   return res.status(404).json({
-  //     status: 'fail',
-  //     message: 'Invalid User ID',
-  //   });
-  // }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      user: 'updated user...',
-    },
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not defined! Please use /signup instead.',
   });
 };
 
-exports.deleteUser = (req, res) => {
-  // const id = req.params.id;
-  // const user = users.find((el) => el._id === id);
-  // if (!user) {
-  //   return res.status(404).json({
-  //     status: 'fail',
-  //     message: 'Invalid User ID',
-  //   });
-  // }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-};
+exports.getAllUsers = factory.getAll(User);
+exports.getUser = factory.getOne(User);
+exports.updateUser = factory.updateOne(User);
+exports.deleteUser = factory.deleteOne(User);
